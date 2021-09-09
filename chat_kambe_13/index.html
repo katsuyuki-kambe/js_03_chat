@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Chatアプリ受発信</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+
+  <body>
+    <div class="mainvisual">
+      <h1 class="mainvisual_title">完全秘密な掲示板</h1>
+      <p class="mainvisual_subtitle">誰にも見られない悪口書き放題！</p>
+      </div>
+
+
+    <div>
+      <div>
+          <p>誰に対して</p>
+          <input type="text" id="name">
+      </div>
+      <div>
+          <p>メッセージ</p>
+           <textarea id="message" row="500" style="margin: 0px; width: 607px; height: 69px;"></textarea>
+           <button id="send" style="margin: 0px; width: 80px; height: 30px;">送信</button>
+      </div>
+      <div id="output"></div>
+    </div>
+
+
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- JQuery -->
+
+    <!--** 以下Firebase **-->
+    <script src="https://www.gstatic.com/firebasejs/6.6.1/firebase.js"></script>
+
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyACW63oyCL1BbCOuNq664bIsPgmF60uF-k",
+        authDomain: "dev21chat-af866.firebaseapp.com",
+        databaseURL: "https://dev21chat-af866-default-rtdb.firebaseio.com/",
+        projectId: "dev21chat-af866",
+        storageBucket: "dev21chat-af866.appspot.com",
+        messagingSenderId: "378725910015",
+        appId: "1:378725910015:web:85cb2cae5e284d752b93ca"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      //firebaseのデーターベース（保存させる場所）
+      const newPostRef = firebase.database().ref();
+
+      // ここから下にjqueryの処理
+      var database = firebase.database();
+      let room = "chat_room";
+      const send = document.getElementById("send");
+      const name = document.getElementById("name");
+      const message = document.getElementById("message");
+      const output = document.getElementById("output");
+
+      //送信処理
+      send.addEventListener('click', function() {
+          var now = new Date();
+          database.ref(room).push({
+              name: name.value,
+              message: message.value,
+              date: now.getFullYear() + '年' + now.getMonth() + '月' + now.getDate() + '日' + now.getHours() + '時' + now.getMinutes() + '分'
+          });
+          message.value="";
+          name.value="";
+      });
+
+      //受信処理
+      database.ref(room).on("child_added", function(data) {
+          const v = data.val();
+          const k = data.key;
+          let str = "";
+          str += '<div class="text">日時：'+v.date+'</div>';
+          str += '<div class="name">誰に対して：'+v.name+'</div>';
+          str += '<div class="text">メッセージ：'+v.message+'</div><hr>';
+          output.innerHTML += str;
+        });
+      
+  </script>
+  </body>
+</html>
